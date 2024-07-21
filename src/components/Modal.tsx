@@ -6,16 +6,13 @@ import { Recipe } from "../types";
 export default function Modal() {
 
   const modal = useAppStore((state) => state.modal);
-
   const closeModal = useAppStore((state) => state.closeModal);
-  
   const selectedRecipe = useAppStore((state) => state.selectedRecipe);
- 
+   const favoritesExists = useAppStore((state) => state.favoritesExists);
+
   const handleClickFavorites = useAppStore(
     (state) => state.hadleClickFavorites
   );
-
-  const favoritesExists = useAppStore((state) => state.favoritesExists);
 
   const renderIngredients = () => {
     const ingredients: JSX.Element[] = [];

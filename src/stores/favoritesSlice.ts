@@ -1,48 +1,62 @@
-import { StateCreator } from "zustand"
-import { Recipe } from "../types"
+import { StateCreator } from "zustand";
+import { Recipe } from "../types";
+import {
+  createNotificationSlice,
+  NotificationSliceTypes,
+} from "./notificationSlice";
 
 export type FavoritesSliceTypes = {
-    favorites: Recipe[],
-    hadleClickFavorites: (recipe: Recipe) => void,
-    favoritesExists: (id: Recipe['idDrink']) => boolean,
-    loadFromStorage: () => void
-}
+  favorites: Recipe[];
+  hadleClickFavorites: (recipe: Recipe) => void;
+  favoritesExists: (id: Recipe["idDrink"]) => boolean;
+  loadFromStorage: () => void;
+};
 
-export const createFavoritesSlice: StateCreator<FavoritesSliceTypes> = (set, get) => ({
-    favorites: [],
-    hadleClickFavorites: (recipe) => {
+export const createFavoritesSlice: StateCreator<
+  FavoritesSliceTypes & NotificationSliceTypes,
+  [],
+  [],
+  FavoritesSliceTypes
+> = (set, get, api) => ({
+  favorites: [],
 
-        if (get().favoritesExists(recipe.idDrink)) {
-            console.log('Si existe');
+  hadleClickFavorites: (recipe) => {
+    if (get().favoritesExists(recipe.idDrink)) {
+      set((state) => ({
+        favorites: state.favorites.filter(
+          (favorite) => favorite.idDrink !== recipe.idDrink
+        ),
+      }));
 
-            set((state) =>({
-                favorites:state.favorites.filter(favorite => favorite.idDrink !== recipe.idDrink)
-            }))
+      createNotificationSlice(set, get, api).showNotification({
+        text: "Se elimino de favoritos",
+        error: false,
+      });
+    } else {
+      set((state) => ({
+        favorites: [...state.favorites, recipe],
+      }));
 
-        }else{
-            console.log('No existe');
-            set((state) =>({
-                favorites: [...state.favorites, recipe],
-            }))
-
-        }
-
-        localStorage.setItem('favorites', JSON.stringify(get().favorites))
-    },
-
-    favoritesExists: (id) => {
-        return get().favorites.some(favorite => favorite.idDrink === id)
-    },
-
-    loadFromStorage: () => {
-        const storedFavorites = localStorage.getItem('favorites')
-
-        if (storedFavorites) {
-            set({
-                favorites: JSON.parse(storedFavorites),
-            })
-            
-            console.log("se han cargado el localStorage");
-        }
+      createNotificationSlice(set, get, api).showNotification({
+        text: "Se agrego a favoritos",
+        error: false,
+      });
     }
-})
+
+    localStorage.setItem("favorites", JSON.stringify(get().favorites));
+  },
+
+  favoritesExists: (id) => {
+    return get().favorites.some((favorite) => favorite.idDrink === id);
+  },
+
+  loadFromStorage: () => {
+    const storedFavorites = localStorage.getItem("favorites");
+
+    if (storedFavorites) {
+      set({
+        favorites: JSON.parse(storedFavorites),
+      });
+    }
+  },
+});
