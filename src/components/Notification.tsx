@@ -8,7 +8,6 @@ export default function Notification() {
 
     const notification = useAppStore((state) => state.notification)
     const hideNotification = useAppStore((state) => state.hideNotification)
- 
 
   return (
     <div
